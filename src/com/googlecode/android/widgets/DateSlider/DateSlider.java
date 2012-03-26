@@ -30,7 +30,7 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.googlecode.android.widgets.DateSlider.SliderContainer.OnTimeChangeListener;
-import com.tutorial.morningcookie.R;
+import com.monkeylabs.morningcookie.R;
 
 /**
  * A Dialog subclass that hosts a SliderContainer and a couple of buttons,

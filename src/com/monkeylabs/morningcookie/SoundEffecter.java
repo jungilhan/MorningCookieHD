@@ -1,6 +1,4 @@
 package com.monkeylabs.morningcookie;
-import com.tutorial.morningcookie.R;
-
 import android.content.Context;
 import android.media.AudioManager;
 import android.media.SoundPool;

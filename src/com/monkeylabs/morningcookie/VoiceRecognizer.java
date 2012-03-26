@@ -119,6 +119,10 @@ public class VoiceRecognizer {
     public void stop() {
         mSpeechRecognizer.stopListening();
     }
+
+    public void destroy() {
+        mSpeechRecognizer.destroy();
+    }
     
     public boolean hasResponse() {
         return mEndOfSpeech || mRmsdB > 5;

@@ -103,6 +103,11 @@
 			display: inline-block;
 			background-color: #eeffff;
 		}
+
+		.alarm-menu {
+			float: right;
+			margin-left: 1%;
+		}
 	</style>
 
 	<script type="text/javascript">
@@ -141,6 +146,9 @@
 				case 'onFeedRequestComplete':
 					setTicker('[' + arg1 + ']' + ' ' + arg2);
 					break;
+				case 'onTimepickerRequestComplete':
+					addAlarm(arg1, arg2);
+					break;
 			}
 		};
 
@@ -148,100 +156,110 @@
 			$('#ticker > marquee').text(message);
 		}
 
+		var addAlarm = function(arg1, arg2) {
+			var $alarmView = $('#alarm > .menu-large-desc');
+			//alert($alarmView.html());//($alarmView.text() + arg1);
+			$alarmView.append($('<p></p>').text(arg1 + arg2));
+		}
+
 		var setOnClickEventListener = function() {
 			$('#news').click(function() {
-				if (window.menuState.news) {
-					$(this).find('img').attr('src', 'images/ic_menu_news_g.png');
-					
-				} else {
-					$(this).find('img').attr('src', 'images/ic_menu_news.png');
-				}
-
 				window.menuState.news = !window.menuState.news;
+
+				if (window.menuState.news) {
+					$(this).find('img').attr('src', 'images/ic_menu_news.png');					
+				} else {					
+					$(this).find('img').attr('src', 'images/ic_menu_news_g.png');
+				}
 
 				var url = 'http://news.google.co.kr/?output=rss';
 				sendMessage('feedRequest', 'news', url);
 			});
 
 			$('#weather').click(function() {
-				if (window.menuState.weather) {
-					$(this).find('img').attr('src', 'images/ic_menu_weather_g.png');
-					
-				} else {
-					$(this).find('img').attr('src', 'images/ic_menu_weather.png');
-				}
-
 				window.menuState.weather = !window.menuState.weather;
+
+				if (window.menuState.weather) {
+					$(this).find('img').attr('src', 'images/ic_menu_weather.png');
+				} else {
+					$(this).find('img').attr('src', 'images/ic_menu_weather_g.png');
+				}
 
 				var url = 'http://www.kma.go.kr/weather/forecast/mid-term-xml.jsp?stnId=108';
 				sendMessage('feedRequest', 'weather', url);
 			});
 
 			$('#rss').click(function() {
-				if (window.menuState.rss) {
-					$(this).find('img').attr('src', 'images/ic_menu_rss_g.png');
-					
-				} else {
-					$(this).find('img').attr('src', 'images/ic_menu_rss.png');
-				}
-
 				window.menuState.rss = !window.menuState.rss;
+
+				if (window.menuState.rss) {
+					$(this).find('img').attr('src', 'images/ic_menu_rss.png');
+				} else {
+					$(this).find('img').attr('src', 'images/ic_menu_rss_g.png');
+				}
 
 				var url = 'http://feeds.feedburner.com/Bloter, http://feeds.feedburner.com/seoulgtugfeed';
 				sendMessage('feedRequest', 'rss', url);
 			});
 
 			$('#facebook').click(function() {
-				if (window.menuState.facebook) {
-					$(this).find('img').attr('src', 'images/ic_menu_facebook_g.png');
-					
-				} else {
-					$(this).find('img').attr('src', 'images/ic_menu_facebook.png');
-				}
+				window.menuState.facebook = !window.menuState.facebook;
 
-				window.menuState.facebook = !window.menuState.facebook;	
+				if (window.menuState.facebook) {
+					$(this).find('img').attr('src', 'images/ic_menu_facebook.png');				
+				} else {
+					$(this).find('img').attr('src', 'images/ic_menu_facebook_g.png');
+				}
 
 				var url = '';
 				sendMessage('feedRequest', 'facebook', url);
 			});
 
 			$('#twitter').click(function() {
-				if (window.menuState.twitter) {
-					$(this).find('img').attr('src', 'images/ic_menu_twitter_g.png');
-					
-				} else {
-					$(this).find('img').attr('src', 'images/ic_menu_twitter.png');
-				}
+				window.menuState.twitter = !window.menuState.twitter;
 
-				window.menuState.twitter = !window.menuState.twitter;	
+				if (window.menuState.twitter) {
+					$(this).find('img').attr('src', 'images/ic_menu_twitter.png');					
+				} else {					
+					$(this).find('img').attr('src', 'images/ic_menu_twitter_g.png');
+				}
 
 				var url = '';
 				sendMessage('feedRequest', 'twitter', url);
 			});
 
 			$('#stock').click(function() {
-				if (window.menuState.stock) {
-					$(this).find('img').attr('src', 'images/ic_menu_stock_g.png');
-					
-				} else {
-					$(this).find('img').attr('src', 'images/ic_menu_stock.png');
-				}
-
 				window.menuState.stock = !window.menuState.stock;	
+
+				if (window.menuState.stock) {
+					$(this).find('img').attr('src', 'images/ic_menu_stock.png');					
+				} else {
+					$(this).find('img').attr('src', 'images/ic_menu_stock_g.png');
+				}
 
 				var url = '';
 				sendMessage('feedRequest', 'stock', url);
 			});
 
 			$('#alarm').click(function() {
-				if (window.menuState.alarm) {
-					$(this).find('img').attr('src', 'images/ic_menu_alarm_g.png');
-					
-				} else {
-					$(this).find('img').attr('src', 'images/ic_menu_alarm.png');
-				}
+				window.menuState.alarm = !window.menuState.alarm;
 
-				window.menuState.alarm = !window.menuState.alarm;	
+				if (window.menuState.alarm) {
+					$(this).find('img').attr('src', 'images/ic_menu_alarm.png');
+				} else {
+					$(this).find('img').attr('src', 'images/ic_menu_alarm_g.png');
+				}
+				
+				sendMessage('alarmEnable', window.menuState.alarm);
+			});
+
+			$('#alarm-add').click(function() {
+				sendMessage('timepickerRequest');
+				return false;
+			});
+
+			$('#alarm-remove').click(function() {
+				return false;
 			});
 
 			$('#ticker').click(function() {
@@ -249,14 +267,14 @@
 			});
 
 			$('#tts').click(function() {
+				window.menuState.tts = !window.menuState.tts;
+
 				if (window.menuState.tts) {
-					$(this).find('img').attr('src', 'images/ic_menu_tts_g.png');
-					
-				} else {
 					$(this).find('img').attr('src', 'images/ic_menu_tts.png');
+				} else {
+					$(this).find('img').attr('src', 'images/ic_menu_tts_g.png');
 				}
 
-				window.menuState.tts = !window.menuState.tts;
 				sendMessage('ttsRequest', window.menuState.tts);
 			});
 		};
@@ -318,14 +336,15 @@
 				</div>
 			</div>
 			<div id='alarm' class='menu-large'>
-				<h3>Alarm</h3>
+				<h3>
+					Alarm
+					<span id='alarm-remove' class='alarm-menu'>삭제하기</span>
+					<span id='alarm-add' class='alarm-menu'>추가하기</span>
+				</h3>
 				<div class='menu-large-icon'>
 					<img src='images/ic_menu_alarm_g.png'>
 				</div>
 				<div class='menu-large-desc'>
-					<p>07:30 AM - Mon Tue Wed Thu Fri</p>
-					<p>08:00 AM - Mon Tue Wed Thu Fri</p>
-					<p>09:10 AM - Sat Sun</p>
 				</div>
 			</div>
 			<div id='ticker'class='menu-ticker'>

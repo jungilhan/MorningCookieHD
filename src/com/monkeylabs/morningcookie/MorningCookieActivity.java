@@ -1,12 +1,17 @@
 package com.monkeylabs.morningcookie;
 
+import java.util.Calendar;
+
 import org.apache.cordova.DroidGap;
 
-import android.content.Intent;
+import android.app.Dialog;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.widget.Toast;
+
+import com.googlecode.android.widgets.DateSlider.DateSlider;
+import com.googlecode.android.widgets.DateSlider.TimeSlider;
 
 public class MorningCookieActivity extends DroidGap {
     private NativeAdapter mNativeAdapter;
@@ -16,6 +21,9 @@ public class MorningCookieActivity extends DroidGap {
     private Handler mHandler;
     public final static int MSG_REQUEST_VOICE_RECOGNIZER = 0;
     public final static int MSG_NO_RESPONSE_VOICE_RECOGNIZER = 1;
+    public final static int MSG_REQUEST_TIME_PICKER = 2;
+    
+    public final static int ID_TIME_PICKER_DIALOG = 0;
     
     /** Called when the activity is first created. */
     @Override
@@ -75,33 +83,29 @@ public class MorningCookieActivity extends DroidGap {
     }
     
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        /*
-        if (requestCode == VoiceRecognizer.VOICE_RECOGNITION_REQUEST_CODE && resultCode == RESULT_OK) {
-            ArrayList<String> matches = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
-            Toast.makeText(MorningCookieActivity.this, "[VOICE_RECOGNITION_REQUEST_CODE] " + matches.toString(), Toast.LENGTH_LONG).show();
-            
-            for (String match : matches) {
-                if (match.equals("좋아요") || match.equals("좋아") || match.equals("조아요") || 
-                    match.equals("좋아영") || match.equals("조아") || match.equals("조아영") || 
-                    match.equals("like")) {
-                    mEffectManager.playVoiceRecognizerSuccess();
-                    break;
-                } else {
-                    mEffectManager.playVoiceRecognizerFail();
-                }
-            }
+    protected Dialog onCreateDialog(int id) {
+        final Calendar c = Calendar.getInstance();
+        
+        switch (id) {
+        case ID_TIME_PICKER_DIALOG:
+            return new TimeSlider(this, new DateSlider.OnDateSetListener() {
+                public void onDateSet(DateSlider view, Calendar selectedDate) {
+                    String time = String.format("%tR", selectedDate);
+                    //Toast.makeText(MorningCookieActivity.this, "다음 시간에 알람을 설정했습니다! " + time, Toast.LENGTH_SHORT).show();
+                    mNativeAdapter.sendMessage("onTimepickerRequestComplete", Helper.ampmChanger(time), " - Mon Tue Wed Thu Fri Sat Sun");
+                }}, c, 5);
         }
         
-        mTextToSpeechEngine.speak();
-        super.onActivityResult(requestCode, resultCode, data);
-        */
+        return null;
     }
     
     @Override
     public void onDestroy() {
         mTextToSpeechEngine.stop();
         mTextToSpeechEngine.shutdown();
+        
+        mVoiceRecognizer.stop();
+        mVoiceRecognizer.destroy();
         
         super.onDestroy();
     }

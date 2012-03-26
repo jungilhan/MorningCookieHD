@@ -38,7 +38,7 @@ import android.widget.Scroller;
 
 import com.googlecode.android.widgets.DateSlider.labeler.Labeler;
 import com.googlecode.android.widgets.DateSlider.timeview.TimeView;
-import com.tutorial.morningcookie.R;
+import com.monkeylabs.morningcookie.R;
 
 /**
  * This is where most of the magic happens. This is a subclass of LinearLayout

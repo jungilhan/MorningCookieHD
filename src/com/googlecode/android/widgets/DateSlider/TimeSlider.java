@@ -23,7 +23,7 @@ import java.util.Calendar;
 
 import android.content.Context;
 
-import com.tutorial.morningcookie.R;
+import com.monkeylabs.morningcookie.R;
 
 
 public class TimeSlider extends DateSlider {

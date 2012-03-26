@@ -43,6 +43,15 @@ public class NativeAdapter {
                 mFeedManager.requestStock(arg2);
                 
             }
+        } else if (message.equals("alarmEnable")) {
+            if (arg1.equals("true")) {
+                
+            } else if (arg1.equals("false")) {
+                
+            }
+        } else if (message.equals("timepickerRequest")) {
+            ((MorningCookieActivity)mDroidGap).showDialog(MorningCookieActivity.ID_TIME_PICKER_DIALOG);
+            
         } else if (message.equals("ttsRequest")) {
             if (arg1.equals("true")) {
                 ((MorningCookieActivity)mDroidGap).textToSpeechEngine().speak();
