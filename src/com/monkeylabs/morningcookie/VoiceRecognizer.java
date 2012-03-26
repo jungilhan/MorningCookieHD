@@ -29,7 +29,7 @@ public class VoiceRecognizer {
             }
             
             public void onBufferReceived(byte[] buffer) {
-                Log.d(TAG, TAG + " onBufferReceived");
+                //Log.d(TAG, TAG + " onBufferReceived");
             }
     
             public void onEndOfSpeech() {
@@ -42,12 +42,14 @@ public class VoiceRecognizer {
                 
                 switch (error) {
                 case SpeechRecognizer.ERROR_SPEECH_TIMEOUT:
-                    ((MorningCookieActivity)mContext).effectManager().playVoiceRecognizerNoResponse();
-                    ((MorningCookieActivity)mContext).textToSpeechStart();
+                    //((MorningCookieActivity)mContext).effectManager().playVoiceRecognizerNoResponse();
+                    //((MorningCookieActivity)mContext).textToSpeechStart();
+                    ((MorningCookieActivity)mContext).sendMessage(MorningCookieActivity.MSG_VOICE_RECOGNIZER_TIMEOUT, null);
                     break;
                 case SpeechRecognizer.ERROR_NO_MATCH:
-                    ((MorningCookieActivity)mContext).effectManager().playVoiceRecognizerFail();
-                    ((MorningCookieActivity)mContext).textToSpeechStart();
+                    //((MorningCookieActivity)mContext).effectManager().playVoiceRecognizerFail();
+                    //((MorningCookieActivity)mContext).textToSpeechStart();
+                    ((MorningCookieActivity)mContext).sendMessage(MorningCookieActivity.MSG_VOICE_RECOGNIZER_NO_MATCH, null);
                     break;
                 }
             }
@@ -65,7 +67,7 @@ public class VoiceRecognizer {
             }
             
             public void onResults(Bundle results) {
-                Log.d(TAG, TAG + " onResults");
+                Log.d(TAG, "[VoiceRecognize Result] onResults");
                 ArrayList<String> matches = results.getStringArrayList("results_recognition");
                 if (matches != null) {
                     Toast.makeText(mContext, "[VOICE_RECOGNITION_REQUEST_CODE] " + matches.toString(), Toast.LENGTH_LONG).show();
@@ -73,28 +75,33 @@ public class VoiceRecognizer {
                     for (String match : matches) {
                         if (match.equals("좋아요") || match.equals("좋아") || match.equals("조아요") || 
                             match.equals("좋아영") || match.equals("조아") || match.equals("조아영") || 
-                            match.equals("like")) {
-                            ((MorningCookieActivity)mContext).effectManager().playVoiceRecognizerSuccess();
+                            match.equals("like") || match.equals("lake") ||
+                            match.contains("좋아") || match.contains("조아")) {
+                            //((MorningCookieActivity)mContext).effectManager().playVoiceRecognizerSuccess();
+                            
+                            ((MorningCookieActivity)mContext).sendMessage(MorningCookieActivity.MSG_VOICE_RECOGNIZER_MATCH_SUCCEED, matches);
                             break;
                         } else {
-                            ((MorningCookieActivity)mContext).effectManager().playVoiceRecognizerFail();
+                            //((MorningCookieActivity)mContext).effectManager().playVoiceRecognizerFail();
+                            ((MorningCookieActivity)mContext).sendMessage(MorningCookieActivity.MSG_VOICE_RECOGNIZER_MATCH_FAILED, null);
                         }
                     }
                 } else {
                     Toast.makeText(mContext, "[VOICE_RECOGNITION_REQUEST_CODE] No Match ", Toast.LENGTH_LONG).show();
+                    ((MorningCookieActivity)mContext).sendMessage(MorningCookieActivity.MSG_VOICE_RECOGNIZER_NO_MATCH, null);
                 }
                 
-                ((MorningCookieActivity)mContext).textToSpeechStart();
+                //((MorningCookieActivity)mContext).textToSpeechStart();
             }
             
             public void onRmsChanged(float rmsdB) {
-                Log.d(TAG, TAG + " onRmsChanged: " + rmsdB);
+                //Log.d(TAG, TAG + " onRmsChanged: " + rmsdB);
                 mRmsdB = rmsdB;
             }
         });
     }
     
-    public void startVoiceRecognitionActivity() {
+    public void startVoiceRecognition() {
         Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
         intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
         intent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS, 3000);

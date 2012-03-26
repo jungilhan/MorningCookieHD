@@ -5,9 +5,11 @@ import java.util.Calendar;
 import org.apache.cordova.DroidGap;
 
 import android.app.Dialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.googlecode.android.widgets.DateSlider.DateSlider;
@@ -17,11 +19,18 @@ public class MorningCookieActivity extends DroidGap {
     private NativeAdapter mNativeAdapter;
     private TextToSpeechEngine mTextToSpeechEngine;
     private VoiceRecognizer mVoiceRecognizer;
-    private SoundEffecter mEffectManager;
+    private SoundEffecter mSoundEffecter;
+    private FacebookAdapter mFacebookAdapter;
     private Handler mHandler;
-    public final static int MSG_REQUEST_VOICE_RECOGNIZER = 0;
-    public final static int MSG_NO_RESPONSE_VOICE_RECOGNIZER = 1;
-    public final static int MSG_REQUEST_TIME_PICKER = 2;
+    private Object mSpeechItem;
+    
+    public final static int MSG_VOICE_RECOGNIZER_REQUEST = 0;
+    public final static int MSG_VOICE_RECOGNIZER_NO_RESPONSE = 1;
+    public final static int MSG_VOICE_RECOGNIZER_NO_MATCH = 2;
+    public final static int MSG_VOICE_RECOGNIZER_TIMEOUT = 3;
+    public final static int MSG_VOICE_RECOGNIZER_MATCH_SUCCEED = 4;
+    public final static int MSG_VOICE_RECOGNIZER_MATCH_FAILED = 5;    
+    public final static int MSG_TIME_PICKER_REQUEST = 10;
     
     public final static int ID_TIME_PICKER_DIALOG = 0;
     
@@ -33,7 +42,8 @@ public class MorningCookieActivity extends DroidGap {
         
         mTextToSpeechEngine = new TextToSpeechEngine(this);
         mVoiceRecognizer = new VoiceRecognizer(this);
-        mEffectManager = new SoundEffecter(this);
+        mSoundEffecter = new SoundEffecter(this);
+        mFacebookAdapter = new FacebookAdapter(this); 
         
         mNativeAdapter = new NativeAdapter(this, appView);
         appView.addJavascriptInterface(mNativeAdapter, "nativeAdapter");
@@ -44,16 +54,40 @@ public class MorningCookieActivity extends DroidGap {
             @Override
             public void handleMessage(Message msg) {
                 switch (msg.what) {
-                case MSG_REQUEST_VOICE_RECOGNIZER:
-                    Toast.makeText(MorningCookieActivity.this, "[MSG_REQUEST_VOICE_RECOGNIZER]", Toast.LENGTH_LONG).show();
-                    mEffectManager.playVoiceRecognizer();
-                    mVoiceRecognizer.startVoiceRecognitionActivity();
-                    this.sendEmptyMessageDelayed(MSG_NO_RESPONSE_VOICE_RECOGNIZER, 3000);
+                case MSG_VOICE_RECOGNIZER_REQUEST:
+                    //Toast.makeText(MorningCookieActivity.this, "[MSG_VOICE_RECOGNIZER_REQUEST]", Toast.LENGTH_LONG).show();
+                    mSpeechItem = msg.obj;
+                    
+                    mSoundEffecter.playVoiceRecognizer();
+                    mVoiceRecognizer.startVoiceRecognition();
+                    this.sendEmptyMessageDelayed(MSG_VOICE_RECOGNIZER_NO_RESPONSE, 3000);
                     break;
                     
-                case MSG_NO_RESPONSE_VOICE_RECOGNIZER:
-                    if (!mVoiceRecognizer.hasResponse())
-                        mVoiceRecognizer.stop();
+                case MSG_VOICE_RECOGNIZER_NO_RESPONSE:
+                    if (!mVoiceRecognizer.hasResponse()) {
+                        Log.i(TAG, "[VoiceRecognize Result] MSG_VOICE_RECOGNIZER_NO_RESPONSE");
+                        mVoiceRecognizer.stop(); // STOP 처리 시 TIMEOUT 에러가 발생되므로 여기서는 textToSpeechStart() 호출하지 않음.
+                    }
+                    break;
+                    
+                case MSG_VOICE_RECOGNIZER_NO_MATCH:
+                case MSG_VOICE_RECOGNIZER_MATCH_FAILED:
+                    Log.i(TAG, "[VoiceRecognize Result] MSG_VOICE_RECOGNIZER_NO_MATCH | MSG_VOICE_RECOGNIZER_MATCH_FAILED");
+                    mSoundEffecter.playVoiceRecognizerFail();
+                    textToSpeechStart();
+                    break;
+                    
+                case MSG_VOICE_RECOGNIZER_TIMEOUT:
+                    Log.i(TAG, "[VoiceRecognize Result] MSG_VOICE_RECOGNIZER_TIMEOUT");
+                    mSoundEffecter.playVoiceRecognizerNoResponse();
+                    textToSpeechStart();
+                    break;
+                    
+                case MSG_VOICE_RECOGNIZER_MATCH_SUCCEED:
+                    Log.i(TAG, "[VoiceRecognize Result] MSG_VOICE_RECOGNIZER_MATCH_SUCCEED");
+                    mSoundEffecter.playVoiceRecognizerSuccess();
+                    mFacebookAdapter.addPostQueue(mSpeechItem);
+                    textToSpeechStart();
                     break;
                 }
             }
@@ -71,7 +105,11 @@ public class MorningCookieActivity extends DroidGap {
     }
     
     public SoundEffecter effectManager() {
-        return mEffectManager;
+        return mSoundEffecter;
+    }
+    
+    public FacebookAdapter facebookAdapter() {
+        return mFacebookAdapter;
     }
     
     public void sendMessage(int what, Object obj) {
@@ -97,6 +135,14 @@ public class MorningCookieActivity extends DroidGap {
         }
         
         return null;
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        mFacebookAdapter.authorizeCallback(requestCode, resultCode, data);
+        Toast.makeText(MorningCookieActivity.this, "페이스북 인증이 완료됐습니다! " + resultCode + " isSessionValid: " + mFacebookAdapter.isSessionValid(), Toast.LENGTH_SHORT).show();
     }
     
     @Override

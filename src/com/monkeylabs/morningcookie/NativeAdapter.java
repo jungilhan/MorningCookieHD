@@ -28,10 +28,18 @@ public class NativeAdapter {
                 });
                 
             } else if (arg1.equals("weather")) {
-                mFeedManager.requestWeather(arg2);
+                mFeedManager.requestWeather(arg2, new FeedManager.OnRequestCompleteListener() {
+                    public void onRequestComplete(String stream) {
+                        sendMessage("onFeedRequestComplete", "weather", stream);
+                    }
+                });
                 
             } else if (arg1.equals("rss")) {
-                mFeedManager.requestRSS(arg2);
+                mFeedManager.requestRSS(arg2, new FeedManager.OnRequestCompleteListener() {
+                    public void onRequestComplete(String stream) {
+                        sendMessage("onFeedRequestComplete", "rss", stream);
+                    }
+                });
                 
             } else if (arg1.equals("facebook")) {
                 mFeedManager.requestFacebook(arg2);
@@ -43,6 +51,9 @@ public class NativeAdapter {
                 mFeedManager.requestStock(arg2);
                 
             }
+        } else if (message.equals("facebookAuthRequest")) {
+            ((MorningCookieActivity)mDroidGap).facebookAdapter().login();
+            
         } else if (message.equals("alarmEnable")) {
             if (arg1.equals("true")) {
                 

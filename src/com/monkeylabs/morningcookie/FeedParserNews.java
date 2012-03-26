@@ -14,17 +14,17 @@ public class FeedParserNews extends FeedParser {
     }
     
     @Override
-   protected void onStart(Element root) {
-        ((FeedItemNews)mFeedItem).putNewsTitle(newsTitle(root));
+    protected void onStart(Element root) {
+        ((FeedItemNews)mFeedItem).putProvider(provider(root));
         ((FeedItemNews)mFeedItem).putArticleInfo(articleInfo(root));
     }
 
-    private String newsTitle(Element root) {
+    protected String provider(Element root) {
         Element e = (Element)root.getElementsByTagName("title").item(0);
         return getElementValue(e);
     }
     
-    private List<ArticleInfo> articleInfo(Element root) {
+    protected List<ArticleInfo> articleInfo(Element root) {
         List<ArticleInfo> aticleInfo = new ArrayList<ArticleInfo>();
         NodeList item = root.getElementsByTagName("item");
         

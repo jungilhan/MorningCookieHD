@@ -104,10 +104,22 @@
 			background-color: #eeffff;
 		}
 
-		.alarm-menu {
-			float: right;
-			margin-left: 1%;
+		.menu-options-container {
+			position: relative;
+			height: 90%;
 		}
+
+		.menu-options {
+			position: absolute;
+			right: 1%;
+			bottom: 1%;
+		}
+
+		.menu-option {
+			font-size: 1.17em;
+			font-weight: bolder;
+		}
+
 	</style>
 
 	<script type="text/javascript">
@@ -171,8 +183,10 @@
 				} else {					
 					$(this).find('img').attr('src', 'images/ic_menu_news_g.png');
 				}
-
-				var url = 'http://news.google.co.kr/?output=rss';
+			
+			//http://newscast.naver.com/presscenter/rssPress.nhn?pressId=052,
+			//http://newscast.naver.com/presscenter/rssPress.nhn?pressId=030,
+				var url =  'http://newscast.naver.com/presscenter/rssPress.nhn?pressId=056,http://newscast.naver.com/presscenter/rssPress.nhn?pressId=214';
 				sendMessage('feedRequest', 'news', url);
 			});
 
@@ -185,7 +199,7 @@
 					$(this).find('img').attr('src', 'images/ic_menu_weather_g.png');
 				}
 
-				var url = 'http://www.kma.go.kr/weather/forecast/mid-term-xml.jsp?stnId=108';
+				var url = 'http://www.kma.go.kr/weather/forecast/mid-term-xml.jsp?stnId=109';
 				sendMessage('feedRequest', 'weather', url);
 			});
 
@@ -198,7 +212,7 @@
 					$(this).find('img').attr('src', 'images/ic_menu_rss_g.png');
 				}
 
-				var url = 'http://feeds.feedburner.com/Bloter, http://feeds.feedburner.com/seoulgtugfeed';
+				var url = 'http://feeds.feedburner.com/Bloter,http://offree.net/rss';
 				sendMessage('feedRequest', 'rss', url);
 			});
 
@@ -253,6 +267,11 @@
 				sendMessage('alarmEnable', window.menuState.alarm);
 			});
 
+			$('#facebook-auth').click(function() {
+				sendMessage('facebookAuthRequest');
+				return false;
+			});
+
 			$('#alarm-add').click(function() {
 				sendMessage('timepickerRequest');
 				return false;
@@ -287,72 +306,79 @@
 	<div class='content'>
 		<div class='menu-container'>
 			<div id='news' class='menu'>
-				<h3>News</h3>
+				<h3>뉴스</h3>
 				<div class='menu-icon'>
 					<img src='images/ic_menu_news_g.png'>
 				</div>
 				<div class='menu-desc'>
-					<p>Sports</p>
-					<p>Entertainment</p>
-					<p>Technology</p>
+					<p>MBC </p>
+					<p>KBS </p>
+					<p>YTN </p>
 				</div>
 			</div>
 			<div id='weather' class='menu'>
-				<h3>Weather</h3>
+				<h3>날씨</h3>
 				<div class='menu-icon'>
 					<img src='images/ic_menu_weather_g.png'>
 				</div>
 				<div class='menu-desc'>
-					<p>Seoul</p>
+					<p>서울</p>
 				</div>
 			</div>
 			<div id='rss' class='menu'>
-				<h3>RSS</h3>
+				<h3>RSS 구독</h3>
 				<div class='menu-icon'>
 					<img src='images/ic_menu_rss_g.png'>
 				</div>
 				<div class='menu-desc'>
-					<p>Qt Labs Blogs</p>
-					<p>The Mozilla Blog</p>
-					<p>안녕.. 타코's 리눅스 블로그</p>
+					<p>블로터</p>
+					<p>도아의 세상사는 이야기</p>
+					<p>KLDP - 프로그래밍 QnA</p>
 				</div>
 			</div>
 			<div id='facebook' class='menu'>
-				<h3>Facebook</h3>
+				<h3>페이스북</h3>
 				<div class='menu-icon'>
 					<img src='images/ic_menu_facebook_g.png'>
-				</div>				
+				</div>
+				<div class='menu-options-container'>
+					<div class='menu-options'>
+						<span id='facebook-auth' class='menu-option'>인증하기</span>
+					</div>
+				</div>	
 			</div>
 			<div id='twitter' class='menu'>
-				<h3>Twitter</h3>
+				<h3>트위터</h3>
 				<div class='menu-icon'>
 					<img src='images/ic_menu_twitter_g.png'>
 				</div>
 			</div>
 			<div id='stock' class='menu'>
-				<h3>Stock</h3>
+				<h3>주식</h3>
 				<div class='menu-icon'>
 					<img src='images/ic_menu_stock_g.png'>
 				</div>
 			</div>
 			<div id='alarm' class='menu-large'>
-				<h3>
-					Alarm
-					<span id='alarm-remove' class='alarm-menu'>삭제하기</span>
-					<span id='alarm-add' class='alarm-menu'>추가하기</span>
-				</h3>
+				<h3>알람</h3>
 				<div class='menu-large-icon'>
 					<img src='images/ic_menu_alarm_g.png'>
 				</div>
 				<div class='menu-large-desc'>
 				</div>
+				<div class='menu-options-container'>
+					<div class='menu-options'>
+						<span id='alarm-add' class='menu-option'>추가하기</span>
+						<span id='alarm-remove' class='menu-option'>삭제하기</span>
+					</div>
+				</div>
 			</div>
 			<div id='ticker'class='menu-ticker'>
-				<h3>Ticker</h3>
+				<h3>실시간 정보</h3>
 				<marquee></marquee>
 			</div>
 			<div id='tts' class='menu'>
-				<h3>TTS</h3>
+				<h3>말하기</h3>
 				<div class='menu-icon'>
 					<img src='images/ic_menu_tts_g.png'>
 				</div>

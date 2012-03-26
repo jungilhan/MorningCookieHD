@@ -3,25 +3,24 @@ package com.monkeylabs.morningcookie;
 import java.util.List;
 
 public class FeedItemNews implements FeedItem {
-    private String mTitle;
+    private String mProvider;
     private List<ArticleInfo> mArticleInfo;
-    
-    public String newsTitle() {
-        return mTitle;
-    }
     
     @Override
     public String toString() {
-        String news = mTitle + " ";
-        for (int index = 0; index < mArticleInfo.size(); index++) {
-            news += mArticleInfo.get(index).mTitle + " ";
-        }
+        String text = mProvider + " ";
+        for (int index = 0; index < mArticleInfo.size(); index++)
+            text += mArticleInfo.get(index).mTitle + " ";
         
-        return news;
+        return text;
     }
     
-    public void putNewsTitle(String title) {
-        mTitle = title;
+    public String provider() {
+        return mProvider;
+    }
+    
+    public void putProvider(String provider) {
+        mProvider = provider;
     }
     
     public List<ArticleInfo> articleInfo() {

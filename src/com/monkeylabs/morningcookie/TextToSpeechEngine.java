@@ -38,7 +38,7 @@ public class TextToSpeechEngine {
                                 
                                 if (!mIsExplicitStop) {
                                     MorningCookieActivity mainActivity = (MorningCookieActivity)mContext;
-                                    mainActivity.sendMessage(MorningCookieActivity.MSG_REQUEST_VOICE_RECOGNIZER, null);
+                                    mainActivity.sendMessage(MorningCookieActivity.MSG_VOICE_RECOGNIZER_REQUEST, item);
                                 }
                             }
                         });
@@ -67,7 +67,30 @@ public class TextToSpeechEngine {
         HashMap<String, String> params = new HashMap<String, String>();
         params.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, Integer.toString(mIndex));
         mIndex++;
-        return mTextToSpeech.speak(item.mTitle, TextToSpeech.QUEUE_FLUSH, params);
+        
+        return mTextToSpeech.speak(preprocessing(item), TextToSpeech.QUEUE_FLUSH, params);
+    }
+    
+    private String preprocessing(SpeechItem item) {
+        String processedText = new String();
+        
+        if (item.mCategory == "news") {
+            if (item.mIsFirstItemOfCategoty)
+                processedText = item.mProvider + "에서 제공하는 뉴스 정보입니다. "+ item.mTitle;
+            else 
+                processedText = item.mTitle;
+            
+        } else if (item.mCategory == "weather") {
+            processedText = "기상청에서 제공하는 " + item.mProvider + " 정보입니다. "+ item.mTitle.replaceAll("\\(.*?\\)", "").replaceAll("~", "에서 ");
+            
+        } else if (item.mCategory == "rss") {
+            if (item.mIsFirstItemOfCategoty)
+                processedText = item.mProvider + "에서 제공하는 RSS 피드 정보입니다. "+ item.mTitle;
+            else 
+                processedText = item.mTitle;
+        }
+        
+        return processedText;
     }
     
     public boolean isSpeaking() {
@@ -90,13 +113,17 @@ public class TextToSpeechEngine {
     
     public class SpeechItem {
         public String mCategory;
+        public String mProvider;
         public String mTitle;
         public String mLink;
+        public boolean mIsFirstItemOfCategoty;
         
-        SpeechItem(String category, String title, String link) {
+        SpeechItem(String category, String provider, String title, String link, boolean isFirstItemOfCategoty) {
             mCategory = category;
+            mProvider = provider;
             mTitle = title;
             mLink = link;
+            mIsFirstItemOfCategoty = isFirstItemOfCategoty;
         }
     }
 }
