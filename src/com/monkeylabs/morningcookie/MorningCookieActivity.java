@@ -4,12 +4,16 @@ import java.util.Calendar;
 
 import org.apache.cordova.DroidGap;
 
+import android.app.AlarmManager;
 import android.app.Dialog;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+import android.view.WindowManager;
 import android.widget.Toast;
 
 import com.googlecode.android.widgets.DateSlider.DateSlider;
@@ -39,6 +43,11 @@ public class MorningCookieActivity extends DroidGap {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         super.init();
+        
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED |
+                WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD |
+                WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON |
+                WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
         
         mTextToSpeechEngine = new TextToSpeechEngine(this);
         mVoiceRecognizer = new VoiceRecognizer(this);
@@ -92,6 +101,9 @@ public class MorningCookieActivity extends DroidGap {
                 }
             }
         };
+        
+        boolean isAlarmActivated = isAlarmActivated(getIntent());
+        Toast.makeText(MorningCookieActivity.this, "[onCreate] isAlarmActivated: " + isAlarmActivated, Toast.LENGTH_LONG).show();
     }
     
     public TextToSpeechEngine textToSpeechEngine() {
@@ -120,6 +132,10 @@ public class MorningCookieActivity extends DroidGap {
         mHandler.sendEmptyMessageDelayed(what, delayMillis);
     }
     
+    private boolean isAlarmActivated(Intent intent) {
+        return intent.getBooleanExtra("isAlarmActivated", false);
+    }
+    
     @Override
     protected Dialog onCreateDialog(int id) {
         final Calendar c = Calendar.getInstance();
@@ -131,6 +147,17 @@ public class MorningCookieActivity extends DroidGap {
                     String time = String.format("%tR", selectedDate);
                     //Toast.makeText(MorningCookieActivity.this, "다음 시간에 알람을 설정했습니다! " + time, Toast.LENGTH_SHORT).show();
                     mNativeAdapter.sendMessage("onTimepickerRequestComplete", Helper.ampmChanger(time), " - Mon Tue Wed Thu Fri Sat Sun");
+                    
+                    // TODO Alarm.
+                    Intent intent = new Intent(MorningCookieActivity.this, AlarmReceiver.class);
+                    PendingIntent sender = PendingIntent.getBroadcast(MorningCookieActivity.this, 0, intent, 0);
+                    
+                    Calendar calendar = Calendar.getInstance();
+                    calendar.setTimeInMillis(System.currentTimeMillis());
+                    calendar.add(Calendar.SECOND, 5);
+                    
+                    AlarmManager alarmManager = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
+                    alarmManager.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), sender);
                 }}, c, 5);
         }
         
@@ -143,6 +170,14 @@ public class MorningCookieActivity extends DroidGap {
 
         mFacebookAdapter.authorizeCallback(requestCode, resultCode, data);
         Toast.makeText(MorningCookieActivity.this, "페이스북 인증이 완료됐습니다! " + resultCode + " isSessionValid: " + mFacebookAdapter.isSessionValid(), Toast.LENGTH_SHORT).show();
+    }
+    
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        
+        boolean isAlarmActivated = isAlarmActivated(intent);
+        Toast.makeText(MorningCookieActivity.this, "[onNewIntent] isAlarmActivated: " + isAlarmActivated, Toast.LENGTH_LONG).show();
     }
     
     @Override

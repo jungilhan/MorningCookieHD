@@ -124,8 +124,9 @@
 
 	<script type="text/javascript">
 		$(document).ready(function() {
+			setOnClickEventListener();
+
 			init();
-			setOnClickEventListener();			
 		});
 
 		var init = function() {
@@ -139,6 +140,36 @@
 				alarm: false,
 				tts: false
 			};
+
+			if (hasKeyStorage('menuState')) { 
+				var menuState = loadSettings('menuState');
+
+				if (menuState.news) $('#news').click();
+				if (menuState.weather) $('#weather').click();
+				if (menuState.rss) $('#rss').click();
+				if (menuState.facebook) $('#facebook').click();
+				if (menuState.twitter) $('#twitter').click();
+				if (menuState.stock) $('#stock').click();
+				if (menuState.alarm) $('#alarm').click();
+				if (menuState.tts) $('#tts').click();
+
+				console.log('[loadStorage] menuState.news: ' + menuState.news);
+				console.log('[loadStorage] menuState.weather: ' + menuState.weather);
+				console.log('[loadStorage] menuState.rss: ' + menuState.rss);
+				console.log('[loadStorage] menuState.facebook: ' + menuState.facebook);
+				console.log('[loadStorage] menuState.twitter: ' + menuState.twitter);
+				console.log('[loadStorage] menuState.stock: ' + menuState.stock);
+				console.log('[loadStorage] menuState.alarm: ' + menuState.alarm);
+				console.log('[loadStorage] menuState.tts: ' + menuState.tts);
+
+			} else {
+				console.log('[localStorage] menuState is empty!');
+			}
+
+			$(window).unload(function() {
+				console.log('window unload - will be saved settings!');
+				saveSettings('menuState', window.menuState);
+			});
 		};
 
 		var sendMessage = function(message, arg1, arg2) {
@@ -162,6 +193,23 @@
 					addAlarm(arg1, arg2);
 					break;
 			}
+		};
+
+		var saveSettings = function(key, value) {
+			localStorage.setItem(key, JSON.stringify(value));
+		};
+
+		var  loadSettings = function(key) {
+			return JSON.parse(localStorage.getItem(key));
+		};
+
+		var hasKeyStorage = function(key) {
+			for (var index = 0; index < localStorage.length; index++) {
+				if (localStorage.key(index) == key)
+					return true;
+			}
+
+			return false;
 		};
 
 		var setTicker = function(message) {
@@ -212,7 +260,7 @@
 					$(this).find('img').attr('src', 'images/ic_menu_rss_g.png');
 				}
 
-				var url = 'http://feeds.feedburner.com/Bloter,http://offree.net/rss';
+				var url = 'http://feeds.feedburner.com/Bloter,http://offree.net/rss,http://kldp.org/taxonomy/term/5/0/feed';
 				sendMessage('feedRequest', 'rss', url);
 			});
 
